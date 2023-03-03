@@ -4,6 +4,7 @@
          "expander.rkt"
          syntax/strip-context
          syntax/stx
+         racket/path
          brag/support
          br-parser-tools/lex
          (prefix-in : br-parser-tools/lex-sre))
@@ -94,7 +95,6 @@
 (define (blex in)
   (define content (port->string in))
   (define content*
-    ;; (regexp-replace* #px" ([^\\w\\s\\.;,\\(\\)]+)(\\s)" content " .\\1\\2")
     (regexp-replace* #px" ([^\\w\\s\\.;,\\(\\)]+) " content " .\\1 "))
   (define port (open-input-string content*))
   (define lexer-func (lambda () (ilex port)))
@@ -106,16 +106,17 @@
   ret)
 
 (define (read-space-syntax src in)
+  (define name (string->symbol (path->string (file-name-from-path src))))
   (define stx-raw (parse src (blex in)))
   (define stx (contract (replace-context #'hmmm stx-raw)))
   (define body (stx-cdr stx))
   (define out
     (datum->syntax
      stx
-     `(module test racket/base
+     `(module ,name racket/base
         ,@body)))
-  (println (syntax->datum stx-raw))
-  (println (syntax->datum stx))
+  ;; (println (syntax->datum stx-raw))
+  ;; (println (syntax->datum stx))
   out)
 
 

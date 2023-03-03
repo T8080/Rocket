@@ -134,23 +134,6 @@ map xs; lambda [x]
   x .rem 2 .eq? 0
 .length
 #+end_src
-The semicolon supports these three scopes but this is less commonly useful:
-#+begin_src
-println; sqrt; + cube;a cube;b
-
-let [x 1];
-let [y (x * 2)];
-x + y
-
-document;
-html
-  lang "en";
-head
-  title "...";
-body
-  h1 ...
-  p ...
-#+end_src
 For identifiers which consist entirely of symbols (~+~, ~==~, ~&&~, etc) the dot can be ommited when the identifier is not at the start of a line. e.g. ~(1 + 2)~ is read as ~(1 .+ 2)~. Note that this means that identifiers which look like binary operators can take more than two arguments: ~(1 + 2 3) == (+ 1 2 3)~ .
 ** Abbreviations
 There are a few syntactical abbreviations which remove the need for parentheses in some places
