@@ -1,5 +1,8 @@
 #+title: Rocket
 Rocket is an experimental space-expression parser for Racket. Space-expressions are a whitespace sensitive notation for code and data which aims to be a more human and editor friendly alternative to s-expressions. ~/aoc/~ contains solutions to the advent of code (2022) challenges in idiomatic Rocket. The rest of this page will give a informal explanation of space-expressions.
+
+[[./day25.png]]
+
 * Syntax
 Space-expressions supports three types of syntaxes for notating expressions: whitespace (spaces and indentation), parentheses (~()~ and ~[]~) and grouping operators (~,~ , ~.~ and ~;~). All of these are interchangeable and correspond to what s-expression call a 'list', in this text we will call them 'an application' instead. Since all application syntaxes are equivalent, which one to use is purely a matter of taste and convenience. However, the possible syntaxes are designed such that they enable a style which should be relatively intuitive for readers familiar with other whitespace based languages.
 ** Whitespace

@@ -115,8 +115,8 @@
      stx
      `(module ,name racket/base
         ,@body)))
-  ;; (println (syntax->datum stx-raw))
-  ;; (println (syntax->datum stx))
+  (println (syntax->datum stx-raw))
+  (println (syntax->datum stx))
   out)
 
 
