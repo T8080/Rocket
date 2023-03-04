@@ -4,7 +4,7 @@ begin: (ls* str8 ls*)+
 @ls: /NL | /C /S
 
 @str0: NUM | STR | KW | SYM | OPSYM
-@str1: ppapp | apapp | list | str0
+@str1: ppapp | apapp | list | str0 | quote
 @str1a: cdapp | str1
 @str2: ccapp | str1a
 @str3: sapp | str2
@@ -14,6 +14,7 @@ begin: (ls* str8 ls*)+
 @str7: ldapp | str6
 @str8: lcapp | str7
 
+quote: /Q str1
 /list: /OB str6? (/C /S str6)* /CB
 /ppapp: str1 /OP str5? (/C /S str5)* /CP
 @apapp: /OP str8 (ls str8)* /CP

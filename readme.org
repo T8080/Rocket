@@ -1,9 +1,9 @@
 #+title: Rocket
-Rocket is an experimental space-expression parser for Racket. Space-expressions are a white-space sensitive notation for code and data which aims to be a more human and editor friendly alternative to s-expressions. ~/aoc/~ contains solutions to the advent of code (2022) challenges in idiomatic Rocket code to illustrate intended usage. The rest of this page will give a short informal explanation of space-expressions.
+Rocket is an experimental space-expression parser for Racket. Space-expressions are a whitespace sensitive notation for code and data which aims to be a more human and editor friendly alternative to s-expressions. ~/aoc/~ contains solutions to the advent of code (2022) challenges in idiomatic Rocket. The rest of this page will give a informal explanation of space-expressions.
 * Syntax
-Space-expressions supports three types of syntaxes for notating expressions: whitespace (spaces and indentation), parentheses (~()~ and ~[]~) and grouping operators (~,~, ~.~ and ~;~). All of these are interchangeable and correspond to what s-expression call a 'list', in this text we will call them 'an application' instead. Since all application syntaxes are equivalent, which one to use is purely a matter of taste and convenience. However, the possible syntaxes are designed such that they enable a style which should be relatively intuitive for readers familiar with other whitespace based languages.
+Space-expressions supports three types of syntaxes for notating expressions: whitespace (spaces and indentation), parentheses (~()~ and ~[]~) and grouping operators (~,~ , ~.~ and ~;~). All of these are interchangeable and correspond to what s-expression call a 'list', in this text we will call them 'an application' instead. Since all application syntaxes are equivalent, which one to use is purely a matter of taste and convenience. However, the possible syntaxes are designed such that they enable a style which should be relatively intuitive for readers familiar with other whitespace based languages.
 ** Whitespace
-The primary way to write applications is using spaces or indentation. Multiple expressions on one line form an application (a space application), and a line followed by a series of indented lines is an application (an indent application). A comma is equivalent to a newline and can therefore be used to escape an application.
+The primary way to write applications is using spaces or indentation. Multiple expressions on one line form an application (a space application), and a line followed by a series of indented lines is an application (an indent application). A comma is equivalent to a newline and can be used to write expressions on the same line without creating an application.
 #+begin_src
 1                        // the expression: |1|
 "hello world"            // the expression: |"hello world"|
@@ -70,7 +70,7 @@ define factorial(n)      // idem, with mixed parentheses
     1
     n * factorial(n - 1)
 #+end_src
-An important difference with parentheses in s-exps is that the parentheses themselves do not add a layer of application, they only group existing applications. This means that ~(x)~ is parsed as the atomic expression ~x~, /not/ a unary application. However ~x()~ is an exception which /is/ parsed as a unary application. To write a literal list use the square brackets: ~[a, b, c]~ which is read as ~list(a, b, c)~.
+An important difference with parentheses space-expressions compared to s-expressions is that the parentheses themselves do not indicieate an application, they only group existing applications. This means that ~(x)~ is parsed as the atomic expression ~x~, /not/ a unary application. However ~x()~ is an exception which /is/ parsed as a unary application. To write a literal list use the square brackets: ~[a, b, c]~ which is read as ~list(a, b, c)~.
 #+begin_src
 x              // x
 (x)            // idem
@@ -93,6 +93,9 @@ for [x range(5), y range(5)]
 ** Semicolon
 The semicolon nests the expression on the right into the expression on the left. This makes it possible to write deeply nested expressions with fewer parentheses or indentations. You can think of the semicolon as an elided indentation.
 #+begin_src
+set! x (x + 1)
+set! x; x + 1   // idem
+
 sqrt
   +
     a * a
@@ -113,16 +116,22 @@ define fib; memoize; lambda [n]
 ** Dot
 The dot (the postfix-operator) applies the expression after it to the expression before it. i.e, the expression before the dot is the first argument to the application after the dot. This enables left-skewed call-trees, which in Lisps cause their signature inside-out structure, to be written without excessive nesting and in an inuitive order.
 #+begin_src
-"hello world" .println
-2 .pow 8
-1 .range-to 10 .println
-list 1 2 3 .for-each println
+9 .sqrt                        // |9| . |sqrt|  == (root 9)
+3 .pow 2                       // |3| . |pow 2| == (pow a 2)
+(a .pow 2) + (b .pow 2) .sqrt  // (sqrt (+ (pow a 2) (pow b 2)))
+
+"hello world" .println         // (println "hello world")
+1 .range-to 10 .println        // (println (range-to 1 10))
+list 1 2 3 .for-each println   // (for-each (list 1 2 3) println)
+x .set! (x + 1)                // (set! x (x + 1))
 #+end_src
-There are tree positions the dot can be in which determine the scope of the dot. If there is a space before the dot (like the example above) then the dot takes the rest of the line and applies it to the part of the line before the dot. If the dot is written on a new line then it applies that whole line to the previous line (of the same indent). Lastly, if there is no whitespace around the dot it only takes the atomic expression directly after the dot and applies it to the atomic expression before the dot.
+There are tree positions the dot can be in which determine the scope of the dot. If there is a space before the dot (like the example above) then the dot takes the rest of the line and applies it to the part of the line before the dot. If the dot is written on a new line then it applies that whole line to the previous line (of the same indent). Lastly, if there is no whitespace around the dot it only takes the expression directly after the dot and applies it to the expression before the dot. Intuitively, the closer the two sides of the dot are the stronger it binds.
 #+begin_src
 println xs.length
 
 length xs .println
+
+a.pow(2) .add b.pow(2) .sqrt
 
 xs .filter is-even .length
 
@@ -134,7 +143,7 @@ map xs; lambda [x]
   x .rem 2 .eq? 0
 .length
 #+end_src
-For identifiers which consist entirely of symbols (~+~, ~==~, ~&&~, etc) the dot can be ommited when the identifier is not at the start of a line. e.g. ~(1 + 2)~ is read as ~(1 .+ 2)~. Note that this means that identifiers which look like binary operators can take more than two arguments: ~(1 + 2 3) == (+ 1 2 3)~ .
+For identifiers which consist entirely of non-alphanumeric characters (~+~, ~==~, ~&&~, etc) the dot can be omitted when the identifier is not at the start of a line. e.g. ~(1 + 2)~ is read as ~(1 .+ 2)~. Note that this means that identifiers which look like binary operators can take more than two arguments: ~(1 + 2 3) = (+ 1 2 3)~ .
 ** Abbreviations
 There are a few syntactical abbreviations which remove the need for parentheses in some places
 #+begin_src
@@ -153,9 +162,9 @@ f"x"  // f("x")
 - Indentation- and line-applications are preferred for statements with branches (~if~, ~cond~, ~match~, etc) or which traditionally are keywords in many language (~define~, ~require~, etc).
 - The semicolon and dot are prefered over other styles of application if there is more than one level of nesting per line and the application does not have branches.
 - List literals are prefered when writing lists or bindings
-- The quote-application (~f'x~) is used for message passing and member access (in combination with applicative datastructures)
+- The quote-application (~f'x~) is used for message passing and member access (in combination with applicative data-structures)
 * Examples
-** Aoc 1
+** AoC 1
 #+begin_src
 define calories
   "day01.txt".file->string
@@ -168,7 +177,7 @@ define calories
 calories.apply(max)
 calories.sort(>).take(3).apply(+)
 #+end_src
-** Aoc 5
+** AoC 5
 #+begin_src
 define height 8
 define lines "day05.txt".file->lines
@@ -186,7 +195,7 @@ define moves
   .drop(height + 2)
   .map; lambda [l]
     regexp-match* "\\d+".pregexp l
-    .map string->number
+    .map(string->number)
 
 define move(stacks, n, from, to)
   define x stacks.list-ref(from.dec).take(n)
