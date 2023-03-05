@@ -4,7 +4,7 @@ Rocket is an experimental space-expression parser for Racket. Space-expressions 
 [[./day25.png]]
 
 * Syntax
-Space-expressions supports three types of syntaxes for notating expressions: whitespace (spaces and indentation), parentheses (~()~ and ~[]~) and grouping operators (~,~ , ~.~ and ~;~). All of these are interchangeable and correspond to what s-expression call a 'list', in this text we will call them 'an application' instead. Since all application syntaxes are equivalent, which one to use is purely a matter of taste and convenience. However, the possible syntaxes are designed such that they enable a style which should be relatively intuitive for readers familiar with other whitespace based languages.
+Space-expressions supports three types of syntaxes for notating expressions: whitespace (spaces and indentation), parentheses (~()~ and ~[]~) and grouping operators ( ~,~, ~.~ and ~;~). All of these are interchangeable and correspond to what s-expression call a 'list', in this text we will call them 'an application' instead. Since all application syntaxes are equivalent, which one to use is purely a matter of taste and convenience. However, the possible syntaxes are designed such that they enable a style which should be relatively intuitive for readers familiar with other whitespace based languages.
 ** Whitespace
 The primary way to write applications is using spaces or indentation. Multiple expressions on one line form an application (a space application), and a line followed by a series of indented lines is an application (an indent application). A comma is equivalent to a newline and can be used to write expressions on the same line without creating an application.
 #+begin_src
@@ -166,50 +166,3 @@ f"x"  // f("x")
 - The semicolon and dot are prefered over other styles of application if there is more than one level of nesting per line and the application does not have branches.
 - List literals are prefered when writing lists or bindings
 - The quote-application (~f'x~) is used for message passing and member access (in combination with applicative data-structures)
-* Examples
-** AoC 1
-#+begin_src
-define calories
-  "day01.txt".file->string
-  .string-split("\n\n")
-  .map; lambda [group]
-    group.string-split
-    .map(string->number)
-    .apply(+)
-
-calories.apply(max)
-calories.sort(>).take(3).apply(+)
-#+end_src
-** AoC 5
-#+begin_src
-define height 8
-define lines "day05.txt".file->lines
-
-define stacks
-  lines
-  .take(height)
-  .map(string->list)
-  .transpose
-  .filter(lambda [l]; l.last.char-alphabetic?)
-  .map(lambda [l]; l.filter(char-alphabetic?))
-
-define moves
-  lines
-  .drop(height + 2)
-  .map; lambda [l]
-    regexp-match* "\\d+".pregexp l
-    .map(string->number)
-
-define move(stacks, n, from, to)
-  define x stacks.list-ref(from.dec).take(n)
-  stacks
-  .list-set(from.dec, stacks.list-ref(from.dec).drop(n))
-  .list-set(to.dec, x.append(stacks.list-ref(to.dec)))
-
-moves
-.fold
-  lambda [m, s]; r-apply move s m
-  stacks
-.map first
-.apply string
-#+end_src
