@@ -2,7 +2,7 @@
 
 
 (define (contract s)
-  (syntax-case s (ldapp sdapp cdapp qcall ilist clist)
+  (syntax-case s (ldapp sdapp cdapp0 cdapp1  qcall ilist clist)
    [(ilist (x ...) y ...)
     (datum->syntax
      s
@@ -11,13 +11,13 @@
     (datum->syntax
      s
      (map contract (syntax-e #'(x y ...))))]
-   [(cdapp r (f a ...))
+   [(cdapp0 r (f a ...))
     (datum->syntax
      s
      `(,(contract #'f)
        ,(contract #'r)
        ,@(map contract (syntax-e #'(a ...)))))]
-   [(cdapp r f)
+   [(cdapp1 r f)
     (datum->syntax
      s
      (list (contract #'f)
