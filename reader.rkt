@@ -95,7 +95,8 @@
 (define (blex in)
   (define content (port->string in))
   (define content*
-    (regexp-replace* #px"(\\S +)([^\\w\\s\\.;,\\(\\)]+) " content "\\1.\\2 "))
+
+    (regexp-replace* #px"(\\S +)([^\\w\\s\\.;,\\(\\)\\\"]+) " content "\\1.\\2 "))
   (define port (open-input-string content*))
   (define lexer-func (lambda () (ilex port)))
   lexer-func)

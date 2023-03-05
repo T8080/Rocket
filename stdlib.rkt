@@ -116,4 +116,5 @@
 
 (provide (all-defined-out)
          r-apply
+         r-count
          (rename-out [-#%app #%app]))
